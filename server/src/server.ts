@@ -11,69 +11,70 @@ app.get("/", (req, res) => {
   res.json({ message: "API running" });
 });
 
+interface Role {
+  role: "parent" | "student" | "faculty";
+}
+
 
 // AUTH APIs
-app.post("/auth/register", (req, res) => {
-  res.json({ message: "register api" })
+
+app.post("/auth/:role/login", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `login api for ${role}` })
 })
 
-app.post("/auth/login", (req, res) => {
-  res.json({ message: "login api" })
+app.post("/auth/:role/logout", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `logout api for ${role}` })
 })
 
-app.post("/auth/logout", (req, res) => {
-  res.json({ message: "logout api" })
+app.post("/auth/:role/refresh-token", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `refresh token api for ${role}` })
 })
 
-app.post("/auth/refresh-token", (req, res) => {
-  res.json({ message: "refresh token api" })
+app.post("/auth/:role/forgot-password", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `forgot password api for ${role}` })
 })
 
-app.post("/auth/forgot-password", (req, res) => {
-  res.json({ message: "forgot password api" })
+app.post("/auth/:role/reset-password", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `reset password api for ${role}` })
 })
 
-app.post("/auth/reset-password", (req, res) => {
-  res.json({ message: "reset password api" })
+app.post("/auth/:role/change-password", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `change password api for ${role}` })
 })
 
-app.post("/auth/change-password", (req, res) => {
-  res.json({ message: "change password api" })
+app.post("/auth/:role/update-profile", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `update profile api for ${role}` })
 })
 
-app.post("/auth/update-profile", (req, res) => {
-  res.json({ message: "update profile api" })
-})
-
-app.get("/auth/me", (req, res) => {
-  res.json({ message: "me api" })
+app.get("/auth/:role/me", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `me api for ${role}` })
 })
 
 // end of AUTH APIs
 
-// TENANT (COLLEGE) APIs
 
-app.post("/tenant/create", (req, res) => {
-  res.json({ message: "create tenant api" })
+app.post("/:role/create", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `create api for ${role}` })
 })
 
-app.post("/tenant/update", (req, res) => {
-  res.json({ message: "update tenant api" })
+app.post("/:role/delete", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `delete api for ${role}` })
 })
 
-app.post("/tenant/delete", (req, res) => {
-  res.json({ message: "delete tenant api" })
+app.post("/:role/update", (req, res) => {
+  const { role } = req.params as Role;
+  res.json({ message: `update api for ${role}` })
 })
-
-app.post("/tenant/get", (req, res) => {
-  res.json({ message: "get tenant api" })
-})
-
-app.post("/tenant/get-all", (req, res) => {
-  res.json({ message: "get all tenants api" })
-})
-
-//end of TENANT (COLLEGE) APIs
 
 
 app.listen(PORT, () => {
