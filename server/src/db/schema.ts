@@ -11,6 +11,8 @@ export const users = pgTable("users", {
   role: roleEnum("role").notNull(),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
+  resetPasswordOtp: varchar("reset_password_otp", { length: 10 }),
+  resetPasswordOtpExpiry: timestamp("reset_password_otp_expiry"),
 });
 
 export const students = pgTable("students", {
