@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { db } from "../db/index.js";
 import { users } from "../db/schema.js";
 import { eq, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
@@ -7,6 +6,7 @@ import jwt from "jsonwebtoken";
 import redis from "../db/redis.js";
 import { sendEmailJob } from "../queues/emailQueue.js";
 import { checkRateLimit } from "../lib/rateLimit.js";
+import { dbPrimary } from "../db/index.js";
 
 const router = Router();
 
@@ -35,7 +35,7 @@ router.post("/login", async (req, res) => {
             return res.status(429).json({ message: "Too many login attempts. Please try again later." });
         }
 
-        const userResults = await db.select().from(users).where(
+        const userResults = await dbPrimary.select().from(users).where(
             and(eq(users.email, email), eq(users.role, "admin"))
         ).limit(1);
 
@@ -94,7 +94,7 @@ router.post("/forgot-password", async (req, res) => {
             return res.status(429).json({ message: "Too many OTP requests. Please try again later." });
         }
 
-        const userResults = await db.select().from(users).where(
+        const userResults = await dbPrimary.select().from(users).where(
             and(eq(users.email, email), eq(users.role, "admin"))
         ).limit(1);
 
@@ -104,7 +104,7 @@ router.post("/forgot-password", async (req, res) => {
         }
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        
+
         // Store OTP in Redis with 10 minutes expiry
         await redis.setex(`otp:${email}`, 10 * 60, otp);
 
@@ -137,7 +137,7 @@ router.post("/reset-password", async (req, res) => {
             return res.status(400).json({ message: "Invalid or expired OTP" });
         }
 
-        const userResults = await db.select().from(users).where(
+        const userResults = await dbPrimary.select().from(users).where(
             and(eq(users.email, email), eq(users.role, "admin"))
         ).limit(1);
 
@@ -149,7 +149,7 @@ router.post("/reset-password", async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        await db.update(users).set({
+        await dbPrimary.update(users).set({
             passwordHash: hashedPassword,
         }).where(eq(users.id, user.id));
 
