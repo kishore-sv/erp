@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, boolean, timestamp, pgEnum, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, boolean, timestamp, pgEnum, primaryKey, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const roleEnum = pgEnum("role", ["student", "faculty", "parent", "admin"]);
@@ -7,6 +7,7 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  profileImage: text("profile_image"),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   role: roleEnum("role").notNull(),
   isActive: boolean("is_active").default(true),
@@ -21,6 +22,7 @@ export const students = pgTable("students", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   rollNumber: varchar("roll_number", { length: 50 }).notNull().unique(),
+  profileImage: text("profile_image"),
   department: varchar("department", { length: 100 }),
   year: varchar("year", { length: 20 }),
   createdAt: timestamp("created_at").defaultNow(),
@@ -31,6 +33,7 @@ export const faculty = pgTable("faculty", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  profileImage: text("profile_image"),
   employeeId: varchar("employee_id", { length: 50 }).notNull().unique(),
   department: varchar("department", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
@@ -41,6 +44,7 @@ export const parents = pgTable("parents", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  profileImage: text("profile_image"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

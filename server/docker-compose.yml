@@ -1,48 +1,37 @@
-version: '3.8'
-
 services:
-  postgres-primary:
-    image: postgres:15
-    container_name: postgres-primary
+  db:
+    image: postgres:16
+    container_name: erp_postgres_db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_NAME:-erp_db}
-      REPLICA_USER: ${DB_REPLICA_USER:-replica_user}
-      REPLICA_PASSWORD: ${DB_REPLICA_PASSWORD:-replica_password}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
-      - ./docker/primary/data:/var/lib/postgresql/data
-      - ./docker/primary/init:/docker-entrypoint-initdb.d
-    command: >
-      postgres
-      -c wal_level=replica
-      -c hot_standby=on
-      -c max_wal_senders=10
-      -c max_replication_slots=10
-      -c hot_standby_feedback=on
+      - erp_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-erp_db}"]
-      interval: 5s
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
       timeout: 5s
       retries: 5
 
-  postgres-replica:
-    image: postgres:15
-    container_name: postgres-replica
-    environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      REPLICA_USER: ${DB_REPLICA_USER:-replica_user}
-      REPLICA_PASSWORD: ${DB_REPLICA_PASSWORD:-replica_password}
-      PRIMARY_HOST: postgres-primary
+  redis:
+    image: redis:7
+    container_name: erp_redis
+    restart: unless-stopped
     ports:
-      - "5433:5432"
+      - "6379:6379"
+    command: [ "redis-server", "--appendonly", "yes" ]
     volumes:
-      - ./docker/replica/data:/var/lib/postgresql/data
-      - ./docker/replica/entrypoint.sh:/custom-entrypoint.sh
-    entrypoint: ["/bin/bash", "/custom-entrypoint.sh"]
-    depends_on:
-      postgres-primary:
-        condition: service_healthy
+      - erp_redis_data:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  erp_postgres_data:
+  erp_redis_data:

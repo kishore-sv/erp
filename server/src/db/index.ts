@@ -6,15 +6,8 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const primaryPool = new Pool({
-  connectionString: process.env.DATABASE_URL_PRIMARY,
-});
-
-const replicaPool = new Pool({
-  connectionString: process.env.DATABASE_URL_REPLICA,
+  connectionString: process.env.DATABASE_URL,
 });
 
 // Primary client for all write operations
 export const dbPrimary = drizzle(primaryPool, { schema });
-
-// Replica client for read-only operations
-export const dbReplica = drizzle(replicaPool, { schema });
